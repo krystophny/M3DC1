@@ -16,6 +16,7 @@ option(ENABLE_COMPLEX "Build complex version" OFF)
 option(ENABLE_3D "Build 3D version" OFF)
 option(ENABLE_ST "Build stellarator version " OFF)
 option(ENABLE_PARTICLE "Enable kinetic particle module" OFF)
+option(ENABLE_ZOLTAN "Enable Zoltan interface [ON|OFF]" ON)
 
 cmake_host_system_information(RESULT HOST QUERY HOSTNAME)
 message(STATUS "Configuring to build on: ${HOST}")
@@ -99,4 +100,3 @@ message(STATUS "Configuring m3dc1_scorec")
 add_subdirectory(m3dc1_scorec EXCLUDE_FROM_ALL)
 message(STATUS "Configuring unstructured")
 add_subdirectory(unstructured)
-

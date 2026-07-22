@@ -24,6 +24,8 @@ endif()
 # endif()
 message(STATUS "Found PETSc ${CMAKE_FIND_LIBRARY_SUFFIXES}")
 
+option(ENABLE_ZOLTAN "Enable Zoltan interface [ON|OFF]" ON)
+
 # set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 # set(CMAKE_CXX_FLAGS_DEBUG "-g")
 # set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -45,6 +47,7 @@ set(SOURCES
     gsl_wrapper.c
     # random.c
     spline.f90
+    signal_handler.f90
     kprad.f90
     math.f90
     read_ascii.f90
@@ -231,6 +234,7 @@ set_property(TARGET PkgConfig::PETSC PROPERTY
 pkg_search_module(FFTW fftw3 IMPORTED_TARGET REQUIRED)
 
 pkg_search_module(GSL gsl IMPORTED_TARGET REQUIRED)
+pkg_search_module(SUPERLU_DIST superlu_dist IMPORTED_TARGET REQUIRED)
 # list(FILTER GSL_LINK_LIBRARIES EXCLUDE REGEX "libm")
 # list(TRANSFORM GSL_LINK_LIBRARIES REPLACE "libm\.a" "libm.so")
 message(STATUS "Found gsl ${GSL_LINK_LIBRARIES}")
@@ -272,7 +276,9 @@ find_package(Scorec)
 #   list(APPEND DEFS -DMATRIX_DUMP)
 # endif()
 
-find_package(Zoltan)
+if(ENABLE_ZOLTAN)
+  find_package(Zoltan REQUIRED)
+endif()
 #find_package(PARMETIS)
 #find_package(METIS)
 
@@ -381,37 +387,6 @@ list(APPEND DEFS -DUSESCOREC -Dmesh_mod=scorec_mesh_mod -Dvector_mod=scorec_vect
 #   set(BIN_NAME "${BIN_NAME}_complex")
 # endif()
 
-set_source_files_properties(
-  scorec_vector.f90
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${BIN_NAME}.dir/scorec_mesh.f90.o
-  )
-
-set_source_files_properties(
-  scorec_matrix.f90
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${BIN_NAME}.dir/scorec_vector.f90.o
-  )
-
-set_source_files_properties(
-  field.f90
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${BIN_NAME}.dir/scorec_vector.f90.o
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${BIN_NAME}.dir/scorec_matrix.f90.o
-  )
-
-set_source_files_properties(
-  M3Dmodules.f90
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${BIN_NAME}.dir/scorec_mesh.f90.o
-  )
-
-set_source_files_properties(
-  nintegrate_mod.f90
-  PROPERTIES
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${BIN_NAME}.dir/scorec_mesh.f90.o
-  )
-
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
   set_source_files_properties( scorec_mesh.f90 PROPERTIES COMPILE_FLAGS -O0 )
@@ -428,7 +403,8 @@ target_link_libraries(${BIN_NAME} PRIVATE PkgConfig::NETCDF-Fortran PkgConfig::N
   ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES}
  # netCDF::netcdff
   ${M3DC1_SCOREC_LIB_NAME} ${SCOREC_LIBRARIES} ${ZOLTAN_LIBRARIES}
-  PkgConfig::PETSC PkgConfig::FFTW PkgConfig::GSL MPI::MPI_Fortran stdc++)
+  PkgConfig::PETSC PkgConfig::FFTW PkgConfig::GSL PkgConfig::SUPERLU_DIST
+  MPI::MPI_Fortran stdc++)
 # target_link_directories(m3dc1_2d ${PETSC_STATIC_LIBRARY_DIRECTORIES})
 target_compile_definitions(${BIN_NAME} PRIVATE ${DEFS})
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
@@ -482,6 +458,3 @@ endif()
 #target_compile_definitions(a2cc PUBLIC ${DEFS})
 
 #add_executable(kprad kprad.f90 kprad_test.f90)
-
-
-

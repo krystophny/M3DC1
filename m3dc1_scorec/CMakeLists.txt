@@ -108,6 +108,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/api)
 set(TARGET_LIB_NAME m3dc1_scorec)
 
+option(ENABLE_ZOLTAN "Enable Zoltan interface [ON|OFF]" ON)
 find_package(Scorec QUIET REQUIRED)
 include_directories(${SCOREC_INCLUDE_DIRS})
 set(DEP_LIBS ${DEP_LIBS} ${SCOREC_LIBRARIES} )
@@ -146,7 +147,6 @@ else()
   set(ENABLE_PETSC "ON")
 endif()
 
-option(ENABLE_ZOLTAN "Enable Zoltan interface [ON|OFF]" ON)
 message(STATUS "ENABLE_ZOLTAN: " ${ENABLE_ZOLTAN})
 
 if (ENABLE_ZOLTAN)
@@ -235,5 +235,4 @@ ${CMAKE_Fortran_COMPILER_FULLPATH}")
 message("CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}")
 message("CMAKE_Fortran_FLAGS = ${CMAKE_Fortran_FLAGS}")
 message("CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-
 
